@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "nombre": "Oficina Central",
+    "tipo": "Interior",
+    "limite_consumo_kwh": 150.0,
+    "estado": "Activo"
+  },
+  {
+    "id": 2,
+    "nombre": "Planta de Producción",
+    "tipo": "Industrial",
+    "limite_consumo_kwh": 500.0,
+    "estado": "Revisión"
+  }
+]

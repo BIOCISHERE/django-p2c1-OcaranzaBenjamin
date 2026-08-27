@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.http import HttpResponse
+from .services import cargar_dispositivos, cargar_zonas
 
 def inicio(request):
     contexto = {
@@ -17,15 +18,18 @@ def inicio(request):
 
 # dispositivos/views.py
 def dispositivos_zona(request):
-    zonas = [
-        {"nombre": "Zona norte grande", "superficie": "185148"},
-        {"nombre": "Zona central", "superficie": "143913"},
-        {"nombre": "Zona sur", "superficie": "233243"},
-    ]
+    zonas = cargar_zonas()
+    activos = sum(
+        1 for item in zonas
+        if item["estado"] == "Activo"
+    )
+    contexto = {
+        "zonas": zonas,
+        "total": len(zonas),
+        "total_activos": activos
+    }
     return render(
-        request,
-        "dispositivos/zonas.html",
-        {"zonas": zonas},
+        request, "dispositivos/zonas.html", contexto
     )
 
 def zona_id(request, zona_id):
@@ -38,13 +42,16 @@ def zona_id(request, zona_id):
     )
 
 def catalogo(request):
-    dispositivos = [
-        {"nombre": "Medidor inteligente", "estado": "Activo"},
-        {"nombre": "Sensor de temperatura", "estado": "Activo"},
-        {"nombre": "Climatizador", "estado": "Revisión"},
-    ]
+    dispositivos = cargar_dispositivos()
+    activos = sum(
+        1 for item in dispositivos
+        if item["estado"] == "Activo"
+    )
+    contexto = {
+        "dispositivos": dispositivos,
+        "total": len(dispositivos),
+        "total_activos": activos,
+    }
     return render(
-        request,
-        "dispositivos/catalogo.html",
-        {"dispositivos": dispositivos},
+        request, "dispositivos/catalogo.html", contexto
     )

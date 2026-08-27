@@ -10,9 +10,9 @@ El proyecto contiene un proyecto Django llamado `config` y una aplicacion
 llamada `dispositivos`. La interfaz usa una plantilla base con navegacion hacia
 las vistas de inicio, dispositivos y zonas.
 
-Los datos mostrados por las vistas son estaticos y se definen en memoria. En el
-estado actual no existen modelos de negocio, consultas a la base de datos ni
-operaciones CRUD.
+Los datos de dispositivos y zonas se almacenan en archivos JSON y se cargan
+desde `dispositivos/services.py`. En el estado actual no existen modelos de
+negocio, consultas a la base de datos ni operaciones CRUD.
 
 ## Tecnologias
 
@@ -20,6 +20,7 @@ operaciones CRUD.
 - Django 6.1.
 - SQLite para la base de datos local.
 - Plantillas HTML de Django.
+- `django-bootstrap5` para cargar Bootstrap 5 desde las plantillas.
 - ASGI y WSGI para los puntos de entrada del proyecto.
 
 ## Requisitos previos
@@ -87,6 +88,30 @@ La configuracion actual mantiene `DEBUG = True`, `ALLOWED_HOSTS` vacio y una
 base de datos SQLite en `db.sqlite3`. Estos valores deben revisarse antes de un
 despliegue en produccion.
 
+## Datos JSON y carga
+
+Los datos de zonas se encuentran en `data/zonas.json`. El archivo contiene una
+lista de objetos con esta estructura:
+
+```json
+{
+	"id": 1,
+	"nombre": "Oficina Central",
+	"tipo": "Interior",
+	"limite_consumo_kwh": 150.0,
+	"estado": "Activo"
+}
+```
+
+La funcion `cargar_zonas()` de `dispositivos/services.py` construye la ruta
+`settings.BASE_DIR / "data" / "zonas.json"`, abre el archivo con codificacion
+UTF-8 y comprueba que el contenido sea una lista. La vista
+`dispositivos_zona()` usa esa funcion y envia los datos al template
+`dispositivos/zonas.html` mediante la variable `zonas`.
+
+Los dispositivos se cargan de forma equivalente desde
+`data/dispositivos.json` mediante `cargar_dispositivos()`.
+
 ## Base de datos
 
 Ejecuta las migraciones de las aplicaciones incluidas en Django cuando prepares
@@ -117,8 +142,8 @@ Las rutas de `dispositivos` se incluyen desde la raiz del proyecto.
 | Metodo | Ruta                | Resultado                                                  |
 | ------ | ------------------- | ---------------------------------------------------------- |
 | GET    | `/`                 | Pagina de inicio de EcoEnergy.                             |
-| GET    | `/dispositivos/`    | Catalogo estatico con tres dispositivos y su estado.       |
-| GET    | `/zonas/`           | Listado estatico con tres zonas y su superficie.           |
+| GET    | `/dispositivos/`    | Catalogo de dispositivos cargados desde JSON.              |
+| GET    | `/zonas/`           | Listado de zonas cargadas desde JSON.                       |
 | GET    | `/zonas/<zona_id>/` | Muestra el ID de la zona. El ID `0` responde con HTTP 404. |
 | GET    | `/admin/`           | Panel administrativo de Django; requiere un superusuario.  |
 
@@ -130,6 +155,30 @@ curl http://127.0.0.1:8000/dispositivos/
 curl http://127.0.0.1:8000/zonas/
 curl http://127.0.0.1:8000/zonas/3/
 ```
+
+## Dependencia externa
+
+El paquete externo `django-bootstrap5==26.2` se declara en `requirements.txt`.
+Es necesario porque `base.html` carga la biblioteca `django_bootstrap5` y usa
+las etiquetas `{% bootstrap_css %}` y `{% bootstrap_javascript %}` para
+incorporar Bootstrap 5 en las paginas heredadas.
+
+La evidencia de esta dependencia se encuentra en estos archivos:
+
+- `requirements.txt`: version fijada de `django-bootstrap5`.
+- `config/settings.py`: aplicacion `django_bootstrap5` instalada.
+- `templates/base.html`: carga CSS y JavaScript de Bootstrap.
+
+## Justificacion y prueba
+
+Los archivos JSON permiten mantener los datos de demostracion fuera del codigo
+de las vistas y reutilizar una funcion de carga para cada conjunto de datos.
+Esto se comprueba en `dispositivos/services.py`, donde `cargar_zonas()` y
+`cargar_dispositivos()` leen sus respectivos archivos, y en `dispositivos/views.py`,
+donde las vistas llaman a esas funciones antes de renderizar sus templates.
+
+La ruta funcional de zonas es `/zonas/`, declarada en `dispositivos/urls.py`
+con el nombre `zonas` y conectada con `dispositivos_zona`.
 
 ## Verificacion
 
@@ -145,8 +194,8 @@ Ejecuta la suite disponible:
 python manage.py test
 ```
 
-Actualmente el chequeo de Django finaliza sin errores, pero no hay casos de
-prueba implementados en `dispositivos/tests.py`.
+Actualmente el chequeo de Django finaliza sin errores. El comando de pruebas no
+encuentra casos implementados en `dispositivos/tests.py`.
 
 Para crear un usuario administrador local:
 
@@ -164,7 +213,8 @@ dispositivos/           Aplicacion principal
 	apps.py               Configuracion de la aplicacion
 	models.py             Modelos de datos, actualmente vacio
 	urls.py               Rutas de la aplicacion
-	views.py              Vistas y datos estaticos de demostracion
+	views.py              Vistas y preparacion del contexto
+	services.py           Carga de datos desde archivos JSON
 templates/              Plantillas HTML compartidas
 	base.html             Plantilla base y navegacion
 	dispositivos/         Plantillas de inicio, catalogo y zonas
@@ -178,13 +228,11 @@ db.sqlite3              Base de datos local ignorada por Git
 La interfaz basica ya esta disponible, pero el proyecto aun se encuentra en
 fase de prototipo:
 
-- Los datos de zonas y dispositivos no se persisten.
+- Los datos de zonas y dispositivos se leen desde archivos JSON y no se
+	persisten en modelos de la base de datos.
 - No hay modelos, formularios, autenticacion propia ni permisos de negocio.
 - No hay endpoints CRUD ni API REST.
 - No hay pruebas automatizadas del dominio.
-- La plantilla de zonas debe corregirse para mostrar la superficie de cada zona;
-  actualmente referencia una variable de dispositivo que no existe en ese
-  contexto.
 - La configuracion de seguridad y despliegue requiere ajustes para produccion.
 
 ## Proximos pasos
