@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block title %}Zonas | EcoEnergy{% endblock %} {% block content %}
+<h1>Zonas</h1>
+<ul>
+    {% for zona in zonas %}
+    <li>{{ zona.nombre }} — {{ dispositivo.estado }}km²</li>
+    {% empty %}
+    <li>No existen zonas disponibles.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
