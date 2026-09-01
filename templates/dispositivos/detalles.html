@@ -1,8 +1,9 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} {% block title %}Detalle de zona | EcoEnergy{% endblock %} {% block content %}
 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
     <div>
         <p class="text-uppercase text-body-secondary small fw-semibold mb-2">EcoEnergy</p>
         <h1 class="h2 mb-1">Detalle de la zona: {{ zona_actual.nombre }}</h1>
+        <p class="text-body-secondary mb-0">Resumen de consumo y dispositivos asociados.</p>
     </div>
     <a href="{% url 'dispositivos:zonas' %}" class="btn btn-outline-success">Volver al listado</a>
 </div>

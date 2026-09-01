@@ -1,0 +1,17 @@
+[
+    {
+        "id": 1,
+        "nombre": "Climatizacion",
+        "descripcion": "Equipos de climatizacion y refrigeracion"
+    },
+    {
+        "id": 2,
+        "nombre": "Iluminacion",
+        "descripcion": "Sistemas de iluminacion general y de emergencia"
+    },
+    {
+        "id": 3,
+        "nombre": "Computo",
+        "descripcion": "Equipos informaticos, servidores y redes"
+    }
+]

@@ -1,16 +1,22 @@
 [
-  {
-    "id": 1,
-    "nombre": "Oficina Central",
-    "tipo": "Interior",
-    "limite_consumo_kwh": 150.0,
-    "estado": "Activo"
-  },
-  {
-    "id": 2,
-    "nombre": "Planta de Producción",
-    "tipo": "Industrial",
-    "limite_consumo_kwh": 500.0,
-    "estado": "Revisión"
-  }
+    {
+        "id": 1,
+        "nombre": "Bodega Norte",
+        "limite_kwh": 500
+    },
+    {
+        "id": 2,
+        "nombre": "Oficina Central",
+        "limite_kwh": 300
+    },
+    {
+        "id": 3,
+        "nombre": "Planta Sur",
+        "limite_kwh": 800
+    },
+    {
+        "id": 4,
+        "nombre": "Sala de Servidores",
+        "limite_kwh": 200
+    }
 ]

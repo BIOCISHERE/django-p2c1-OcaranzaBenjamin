@@ -1,246 +1,310 @@
 # EcoEnergy
 
-Aplicacion web inicial desarrollada con Python y Django para el proyecto
-integrado **EcoEnergy**. Actualmente presenta informacion de monitoreo
-energetico mediante paginas HTML de demostracion.
+Aplicación web desarrollada en Python con Django para el monitoreo energético de zonas y dispositivos. El proyecto consume datos desde archivos JSON y presenta una interfaz responsive con Bootstrap 5 para visualizar el estado de consumo por zona y el catálogo completo de dispositivos.
 
-## Descripcion
+## Descripción
 
-El proyecto contiene un proyecto Django llamado `config` y una aplicacion
-llamada `dispositivos`. La interfaz usa una plantilla base con navegacion hacia
-las vistas de inicio, dispositivos y zonas.
+EcoEnergy es una solución en etapa de prototipo orientada a la gestión de consumo energético por áreas o zonas. La aplicación muestra:
 
-Los datos de dispositivos y zonas se almacenan en archivos JSON y se cargan
-desde `dispositivos/services.py`. En el estado actual no existen modelos de
-negocio, consultas a la base de datos ni operaciones CRUD.
+- una pantalla de inicio
+- un listado de zonas con su estado, límite de consumo y consumo total
+- el detalle de una zona determinada con sus dispositivos asociados
+- un catálogo general de dispositivos
 
-## Tecnologias
+La lógica de negocio se implementa en `dispositivos/views.py`, la carga de datos se centraliza en `dispositivos/services.py` y la presentación se realiza con plantillas Django en `templates/`.
 
-- Python compatible con Django 6.1.
-- Django 6.1.
-- SQLite para la base de datos local.
-- Plantillas HTML de Django.
-- `django-bootstrap5` para cargar Bootstrap 5 desde las plantillas.
-- ASGI y WSGI para los puntos de entrada del proyecto.
+## Estado actual del proyecto
+
+La aplicación ya está funcionando con estas funcionalidades:
+
+- navegación principal desde `base.html`
+- vista de inicio (`/`)
+- listado de zonas (`/zonas/`)
+- detalle de zona por id (`/zonas/<int:zona_id>/`)
+- catálogo de dispositivos (`/dispositivos/`)
+- cálculo de estado por zona (`NORMAL` o `ALERTA`)
+- integración con Bootstrap 5 para diseño responsive
+- carga de datos desde JSON en `data/`
+- pruebas automatizadas para las vistas principales
+
+No hay persistencia en base de datos ni modelos de Django para dominio aún; la información se lee desde archivos JSON.
+
+## Tecnologías
+
+- Python 3.13
+- Django 6.1
+- SQLite
+- Bootstrap 5 a través de `django-bootstrap5`
+- HTML + Django Templates
+- JSON como fuente de datos de prueba
 
 ## Requisitos previos
 
-- Python instalado y disponible desde la terminal.
-- Git instalado.
-- Una terminal ubicada en la carpeta del proyecto.
+- Python instalado
+- Git
+- acceso a la terminal del proyecto
 
-Se recomienda comprobar la version de Python con `python --version` o
-`python3 --version`. El proyecto fue ejecutado en desarrollo con Python 3.13.
+Se recomienda verificar la versión con:
 
-## Instalacion
+```bash
+python --version
+```
 
-Clona el repositorio y entra en su carpeta:
+## Instalación
+
+Clonar el repositorio:
 
 ```bash
 git clone https://github.com/BIOCISHERE/django-p2c1-OcaranzaBenjamin.git
 cd django-p2c1-OcaranzaBenjamin
 ```
 
-Crea y activa un entorno virtual.
+Crear y activar entorno virtual:
 
-En macOS o Linux:
+macOS/Linux:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-En Windows PowerShell:
+Windows PowerShell:
 
 ```powershell
 py -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
-Instala las dependencias fijadas:
+Instalar dependencias:
 
 ```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-## Configuracion
+## Configuración
 
-La clave secreta se obtiene desde `DJANGO_SECRET_KEY`. El archivo
-`.env.example` muestra el nombre de la variable esperada:
+El proyecto usa Django con configuración base estándar. La clave secreta y otros valores de entorno pueden definirse según la configuración local del entorno.
 
-En macOS o Linux:
+Ejemplo para macOS/Linux:
 
 ```bash
-export DJANGO_SECRET_KEY="una-clave-secreta-unica"
+export DJANGO_SECRET_KEY="una-clave-secreta"
 ```
 
-En Windows PowerShell:
+Ejemplo para Windows PowerShell:
 
 ```powershell
-$env:DJANGO_SECRET_KEY = "una-clave-secreta-unica"
+$env:DJANGO_SECRET_KEY = "una-clave-secreta"
 ```
 
-El proyecto no carga automaticamente archivos `.env`. Si no se define la
-variable, se utiliza una clave predeterminada para desarrollo local.
+Si no se define una clave, Django puede usar una predeterminada para desarrollo local, pero es recomendable configurar una clave segura en entornos reales.
 
-La configuracion actual mantiene `DEBUG = True`, `ALLOWED_HOSTS` vacio y una
-base de datos SQLite en `db.sqlite3`. Estos valores deben revisarse antes de un
-despliegue en produccion.
+## Datos JSON
 
-## Datos JSON y carga
+Los archivos de prueba se encuentran en la carpeta `data/`:
 
-Los datos de zonas se encuentran en `data/zonas.json`. El archivo contiene una
-lista de objetos con esta estructura:
+- `data/zonas.json`
+- `data/dispositivos.json`
+- `data/categorias.json`
+
+Ejemplo de estructura de zonas:
 
 ```json
-{
-	"id": 1,
-	"nombre": "Oficina Central",
-	"tipo": "Interior",
-	"limite_consumo_kwh": 150.0,
-	"estado": "Activo"
-}
+[
+    {
+        "id": 1,
+        "nombre": "Bodega Norte",
+        "limite_kwh": 500
+    }
+]
 ```
 
-La funcion `cargar_zonas()` de `dispositivos/services.py` construye la ruta
-`settings.BASE_DIR / "data" / "zonas.json"`, abre el archivo con codificacion
-UTF-8 y comprueba que el contenido sea una lista. La vista
-`dispositivos_zona()` usa esa funcion y envia los datos al template
-`dispositivos/zonas.html` mediante la variable `zonas`.
+Ejemplo de estructura de dispositivos:
 
-Los dispositivos se cargan de forma equivalente desde
-`data/dispositivos.json` mediante `cargar_dispositivos()`.
-
-## Base de datos
-
-Ejecuta las migraciones de las aplicaciones incluidas en Django cuando prepares
-el entorno local:
-
-```bash
-python manage.py migrate
+```json
+[
+    {
+        "id": 1,
+        "nombre": "Aire Acondicionado A1",
+        "consumo_kwh": 150,
+        "zona_id": 1,
+        "categoria_id": 1
+    }
+]
 ```
 
-La aplicacion `dispositivos` no tiene modelos ni migraciones propias en este
-momento. Los listados de zonas y dispositivos que se muestran en pantalla son
-datos de prueba definidos directamente en `dispositivos/views.py`.
+La carga de datos está centralizada en `dispositivos/services.py` con funciones como:
 
-## Ejecucion
+- `cargar_zonas()`
+- `cargar_dispositivos()`
+- `cargar_categorias()`
 
-Inicia el servidor de desarrollo:
+Cada una abre el archivo JSON correspondiente y valida que el contenido sea una lista.
+
+## Estructura principal del proyecto
+
+```text
+config/
+    settings.py
+    urls.py
+    asgi.py
+    wsgi.py
+
+dispositivos/
+    admin.py
+    apps.py
+    models.py
+    services.py
+    tests.py
+    urls.py
+    views.py
+    migrations/
+
+data/
+    categorias.json
+    dispositivos.json
+    zonas.json
+
+templates/
+    base.html
+    dispositivos/
+        inicio.html
+        zonas.html
+        detalles.html
+        dispositivos.html
+
+manage.py
+requirements.txt
+README.md
+```
+
+## Rutas disponibles
+
+Las rutas de la aplicación se registran en `dispositivos/urls.py`:
+
+| Método | Ruta                | Descripción                              |
+| ------ | ------------------- | ---------------------------------------- |
+| GET    | `/`                 | Página de inicio                         |
+| GET    | `/zonas/`           | Listado de zonas                         |
+| GET    | `/zonas/<zona_id>/` | Detalle de una zona con sus dispositivos |
+| GET    | `/dispositivos/`    | Catálogo general de dispositivos         |
+| GET    | `/admin/`           | Panel administrativo de Django           |
+
+Ejemplos de uso:
 
 ```bash
 python manage.py runserver
 ```
 
-Abre <http://127.0.0.1:8000/> en el navegador.
+Luego abrir:
 
-## Vistas y rutas disponibles
+- http://127.0.0.1:8000/
+- http://127.0.0.1:8000/zonas/
+- http://127.0.0.1:8000/zonas/2/
+- http://127.0.0.1:8000/dispositivos/
 
-Las rutas de `dispositivos` se incluyen desde la raiz del proyecto.
+## Funcionalidad actual
 
-| Metodo | Ruta                | Resultado                                                  |
-| ------ | ------------------- | ---------------------------------------------------------- |
-| GET    | `/`                 | Pagina de inicio de EcoEnergy.                             |
-| GET    | `/dispositivos/`    | Catalogo de dispositivos cargados desde JSON.              |
-| GET    | `/zonas/`           | Listado de zonas cargadas desde JSON.                       |
-| GET    | `/zonas/<zona_id>/` | Muestra el ID de la zona. El ID `0` responde con HTTP 404. |
-| GET    | `/admin/`           | Panel administrativo de Django; requiere un superusuario.  |
+### Inicio
 
-Ejemplos:
+La vista de inicio presenta una landing page con una propuesta visual de EcoEnergy y enlaces rápidos a zonas y dispositivos.
 
-```bash
-curl http://127.0.0.1:8000/
-curl http://127.0.0.1:8000/dispositivos/
-curl http://127.0.0.1:8000/zonas/
-curl http://127.0.0.1:8000/zonas/3/
-```
+### Zonas
 
-## Dependencia externa
+`/zonas/` calcula por cada zona:
 
-El paquete externo `django-bootstrap5==26.2` se declara en `requirements.txt`.
-Es necesario porque `base.html` carga la biblioteca `django_bootstrap5` y usa
-las etiquetas `{% bootstrap_css %}` y `{% bootstrap_javascript %}` para
-incorporar Bootstrap 5 en las paginas heredadas.
+- cantidad de dispositivos
+- consumo total
+- límite de consumo
+- estado: `NORMAL` o `ALERTA`
 
-La evidencia de esta dependencia se encuentra en estos archivos:
+La vista utiliza la plantilla `templates/dispositivos/zonas.html`.
 
-- `requirements.txt`: version fijada de `django-bootstrap5`.
-- `config/settings.py`: aplicacion `django_bootstrap5` instalada.
-- `templates/base.html`: carga CSS y JavaScript de Bootstrap.
+### Detalle de zona
 
-## Justificacion y prueba
+`/zonas/<zona_id>/` muestra:
 
-Los archivos JSON permiten mantener los datos de demostracion fuera del codigo
-de las vistas y reutilizar una funcion de carga para cada conjunto de datos.
-Esto se comprueba en `dispositivos/services.py`, donde `cargar_zonas()` y
-`cargar_dispositivos()` leen sus respectivos archivos, y en `dispositivos/views.py`,
-donde las vistas llaman a esas funciones antes de renderizar sus templates.
+- nombre de la zona
+- límite de consumo
+- consumo total
+- número de dispositivos
+- estado
+- listado de dispositivos asociados
 
-La ruta funcional de zonas es `/zonas/`, declarada en `dispositivos/urls.py`
-con el nombre `zonas` y conectada con `dispositivos_zona`.
+La navegación tiene un botón para volver al listado de zonas.
 
-## Verificacion
+### Dispositivos
 
-Comprueba la instalacion y la configuracion del proyecto:
+`/dispositivos/` lista todos los dispositivos con su categoría y su consumo en kWh.
 
-```bash
-python manage.py check
-```
+## Diseño responsive
 
-Ejecuta la suite disponible:
+La base visual del proyecto usa Bootstrap 5 en `templates/base.html`. Las plantillas están diseñadas con:
+
+- contenedores responsivos
+- filas y columnas con `row` y `col-*`
+- cards para métricas y contenido
+- tablas con `table-responsive`
+- botones adaptados para móvil y escritorio
+
+Esto permite que la interfaz se adapte a distintos tamaños de pantalla sin romper la experiencia.
+
+## Pruebas
+
+El proyecto cuenta con pruebas para las vistas principales en `dispositivos/tests.py`.
+
+Ejecutarlas:
 
 ```bash
 python manage.py test
 ```
 
-Actualmente el chequeo de Django finaliza sin errores. El comando de pruebas no
-encuentra casos implementados en `dispositivos/tests.py`.
+Resultado verificado en el proyecto actual:
 
-Para crear un usuario administrador local:
+```text
+Ran 3 tests in 0.005s
+
+OK
+```
+
+## Dependencias
+
+En `requirements.txt` se declara:
+
+```text
+asgiref==3.12.1
+Django==6.1
+django-bootstrap5==26.2
+sqlparse==0.6.0
+```
+
+## Estado y próximos pasos
+
+El proyecto ya alcanzó el estado funcional solicitado para el caso actual: listas dinámicas desde JSON, detalle de zona por dispositivo y visualización responsive. Como continuación natural, los próximos pasos posibles son:
+
+- migrar la fuente de datos a modelos de Django
+- persistir zonas y dispositivos en base de datos
+- agregar formularios y validaciones
+- implementar autenticación y permisos
+- preparar la aplicación para entorno de producción
+
+## Comandos útiles
+
+Validar el proyecto:
+
+```bash
+python manage.py check
+```
+
+Ejecutar servidor:
+
+```bash
+python manage.py runserver
+```
+
+Crear superusuario:
 
 ```bash
 python manage.py createsuperuser
 ```
-
-## Estructura principal
-
-```text
-config/                 Configuracion, URLs y entradas ASGI/WSGI
-dispositivos/           Aplicacion principal
-	migrations/           Migraciones de la aplicacion
-	admin.py              Registro del panel administrativo
-	apps.py               Configuracion de la aplicacion
-	models.py             Modelos de datos, actualmente vacio
-	urls.py               Rutas de la aplicacion
-	views.py              Vistas y preparacion del contexto
-	services.py           Carga de datos desde archivos JSON
-templates/              Plantillas HTML compartidas
-	base.html             Plantilla base y navegacion
-	dispositivos/         Plantillas de inicio, catalogo y zonas
-manage.py               Utilidad de administracion de Django
-requirements.txt        Dependencias fijadas
-db.sqlite3              Base de datos local ignorada por Git
-```
-
-## Estado actual y pendientes
-
-La interfaz basica ya esta disponible, pero el proyecto aun se encuentra en
-fase de prototipo:
-
-- Los datos de zonas y dispositivos se leen desde archivos JSON y no se
-	persisten en modelos de la base de datos.
-- No hay modelos, formularios, autenticacion propia ni permisos de negocio.
-- No hay endpoints CRUD ni API REST.
-- No hay pruebas automatizadas del dominio.
-- La configuracion de seguridad y despliegue requiere ajustes para produccion.
-
-## Proximos pasos
-
-- Definir los requerimientos funcionales del caso EcoEnergy.
-- Diseñar modelos para zonas, dispositivos, estados y mediciones.
-- Reemplazar los datos estaticos por persistencia en la base de datos.
-- Corregir y ampliar las plantillas y la navegacion.
-- Implementar validaciones, formularios y permisos.
-- Agregar pruebas unitarias y de integracion para vistas y modelos.
-- Revisar `DEBUG`, `ALLOWED_HOSTS`, `SECRET_KEY` y el servidor de produccion.
