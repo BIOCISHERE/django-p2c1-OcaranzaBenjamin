@@ -23,10 +23,10 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body d-flex align-items-center justify-content-between">
                 <div>
-                    <p class="text-body-secondary mb-1">Normales</p>
-                    <p class="display-6 fw-semibold mb-0">{{ total_normales }}</p>
+                    <p class="text-body-secondary mb-1">Total dispositivos</p>
+                    <p class="display-6 fw-semibold mb-0">{{ total_dispositivos }}</p>
                 </div>
-                <span class="fs-1 text-success" aria-hidden="true">◉</span>
+                <!-- <span class="fs-1 text-success" aria-hidden="true">◉</span> -->
             </div>
         </div>
     </div>
@@ -34,10 +34,10 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body d-flex align-items-center justify-content-between">
                 <div>
-                    <p class="text-body-secondary mb-1">Alertas</p>
-                    <p class="display-6 fw-semibold mb-0">{{ total_alertas }}</p>
+                    <p class="text-body-secondary mb-1">Consumo total</p>
+                    <p class="display-6 fw-semibold mb-0">{{ consumo_completo }} kWh</p>
                 </div>
-                <span class="fs-1 text-danger" aria-hidden="true">◉</span>
+                <!-- <span class="fs-1 text-danger" aria-hidden="true">◉</span> -->
             </div>
         </div>
     </div>
@@ -55,9 +55,9 @@
                         <h2 class="h4 mb-0">{{ zona.nombre }}</h2>
                     </div>
                     {% if zona.estado == "ALERTA" %}
-                    <span class="badge text-bg-danger">ALERTA</span>
+                    <span class="badge text-bg-danger">LÍMITE SUPERADO </span>
                     {% else %}
-                    <span class="badge text-bg-success">NORMAL</span>
+                    <span class="badge text-bg-success">DENTRO DEL LÍMITE</span>
                     {% endif %}
                 </div>
 

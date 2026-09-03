@@ -45,8 +45,22 @@ def dispositivos_zona(request):
                 "estado": _estado_zona(consumo_total, zona["limite_kwh"]),
             }
         )
-
-    contexto = {
+    if zonas == []:
+        contexto = {
+        "zonas": [],
+        "total": len(zonas_con_detalle),
+        "total_alertas": sum(
+            1 for zona in zonas_con_detalle if zona["estado"] == "ALERTA"
+        ),
+        "total_normales": sum(
+            1 for zona in zonas_con_detalle if zona["estado"] == "NORMAL"
+        ),
+        "total_dispositivos": 0,
+        "consumo_completo": 0
+        }
+    else:
+        consumo_completo = sum(dispositivo["consumo_kwh"] for dispositivo in dispositivos)
+        contexto = {
         "zonas": zonas_con_detalle,
         "total": len(zonas_con_detalle),
         "total_alertas": sum(
@@ -55,7 +69,11 @@ def dispositivos_zona(request):
         "total_normales": sum(
             1 for zona in zonas_con_detalle if zona["estado"] == "NORMAL"
         ),
-    }
+        "total_dispositivos": len(dispositivos),
+        "consumo_completo": consumo_completo
+        }  
+
+    
     return render(request, "dispositivos/zonas.html", contexto)
 
 
